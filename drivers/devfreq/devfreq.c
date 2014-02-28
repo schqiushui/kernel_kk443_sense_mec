@@ -87,28 +87,36 @@ EXPORT_SYMBOL(devfreq_get_freq_level);
 
 static int devfreq_update_status(struct devfreq *devfreq, unsigned long freq)
 {
-	int lev, prev_lev;
+	int lev, prev_lev, ret = 0;
 	unsigned long cur_time;
 
-	lev = devfreq_get_freq_level(devfreq, freq);
-	if (lev < 0)
-		return lev;
-
 	cur_time = jiffies;
-	devfreq->time_in_state[lev] +=
+
+	prev_lev = devfreq_get_freq_level(devfreq, devfreq->previous_freq);
+	if (prev_lev < 0) {
+		ret = prev_lev;
+		goto out;
+	}
+
+	devfreq->time_in_state[prev_lev] +=
 			 cur_time - devfreq->last_stat_updated;
-	if (freq != devfreq->previous_freq) {
-		prev_lev = devfreq_get_freq_level(devfreq,
-						devfreq->previous_freq);
-		if (prev_lev < 0)
-			return prev_lev;
+
+	lev = devfreq_get_freq_level(devfreq, freq);
+	if (lev < 0) {
+		ret = lev;
+		goto out;
+	}
+
+	if (lev != prev_lev) {
 		devfreq->trans_table[(prev_lev *
 				devfreq->profile->max_state) + lev]++;
 		devfreq->total_trans++;
 	}
 	devfreq->last_stat_updated = cur_time;
 
-	return 0;
+out:
+	devfreq->last_stat_updated = cur_time;
+	return ret;
 }
 
 static struct devfreq_governor *find_devfreq_governor(const char *name)
@@ -322,25 +330,14 @@ static void devfreq_dev_release(struct device *dev)
 	_remove_devfreq(devfreq, true);
 }
 
-static void *find_governor_data(struct devfreq_dev_profile *profile,
-				const char *governor_name)
-{
-	void *data = NULL;
-	int i;
-
-	if (profile->governor_data == NULL)
-		return NULL;
-
-	for (i = 0; i < profile->num_governor_data; i++) {
-		if (strncmp(governor_name, profile->governor_data[i].name,
-			     DEVFREQ_NAME_LEN) == 0) {
-			data = profile->governor_data[i].data;
-			break;
-		}
-	}
-	return data;
-}
-
+/**
+ * devfreq_add_device() - Add devfreq feature to the device
+ * @dev:	the device to add devfreq feature.
+ * @profile:	device-specific profile to run devfreq.
+ * @governor_name:	name of the policy to choose frequency.
+ * @data:	private data for the governor. The devfreq framework does not
+ *		touch this value.
+ */
 struct devfreq *devfreq_add_device(struct device *dev,
 				   struct devfreq_dev_profile *profile,
 				   const char *governor_name,
@@ -380,19 +377,17 @@ struct devfreq *devfreq_add_device(struct device *dev,
 	devfreq->profile = profile;
 	strncpy(devfreq->governor_name, governor_name, DEVFREQ_NAME_LEN);
 	devfreq->previous_freq = profile->initial_freq;
-
-	devfreq->data = data ? data : find_governor_data(devfreq->profile,
-							 governor_name);
-
+	devfreq->data = data;
 	devfreq->nb.notifier_call = devfreq_notifier_call;
 
 	devfreq->trans_table =	devm_kzalloc(dev, sizeof(unsigned int) *
 						devfreq->profile->max_state *
 						devfreq->profile->max_state,
 						GFP_KERNEL);
-	devfreq->time_in_state = devm_kzalloc(dev, sizeof(unsigned int) *
-						devfreq->profile->max_state,
-						GFP_KERNEL);
+	devfreq->time_in_state = devm_kzalloc(dev,
+					sizeof(*(devfreq->time_in_state)) *
+					devfreq->profile->max_state,
+					GFP_KERNEL);
 	devfreq->last_stat_updated = jiffies;
 	devfreq_set_freq_limits(devfreq);
 
@@ -621,7 +616,6 @@ static ssize_t store_governor(struct device *dev, struct device_attribute *attr,
 			goto out;
 		}
 	}
-	df->data = find_governor_data(df->profile, str_governor);
 	df->governor = governor;
 	strncpy(df->governor_name, governor->name, DEVFREQ_NAME_LEN);
 	ret = df->governor->event_handler(df, DEVFREQ_GOV_START, NULL);
@@ -776,19 +770,26 @@ static ssize_t show_available_freqs(struct device *d,
 	struct devfreq *df = to_devfreq(d);
 	struct device *dev = df->dev.parent;
 	struct opp *opp;
+	unsigned int i = 0, max_state = df->profile->max_state;
+	bool use_opp;
 	ssize_t count = 0;
 	unsigned long freq = 0;
 
 	rcu_read_lock();
+	use_opp = opp_get_opp_count(dev) > 0;
 	do {
-		opp = opp_find_freq_ceil(dev, &freq);
-		if (IS_ERR(opp))
-			break;
+		if (use_opp) {
+			opp = opp_find_freq_ceil(dev, &freq);
+			if (IS_ERR(opp))
+				break;
+		} else {
+			freq = df->profile->freq_table[i++];
+		}
 
 		count += scnprintf(&buf[count], (PAGE_SIZE - count - 2),
 				   "%lu ", freq);
 		freq++;
-	} while (1);
+	} while (use_opp || (!use_opp && i < max_state));
 	rcu_read_unlock();
 
 	
