@@ -648,20 +648,8 @@ static void krait_update_uv(int *uv, int num, int boost_uv)
 			uv[i] += boost_uv;
 #ifdef CONFIG_MSM_VOLTAGE_FREQ_INIT
         } else {
-		for (i = 0; i < num; i++) {
-	switch (arg_vdd_uv) {
-
-	case 1:
-					uv[i] -= 25000;
-		break;
-	case 2:
-					uv[i] -= 50000;
-		break;
-	case 3:
-					uv[i] -= 75000;
-		break;
-	}
-		}
+		for (i = 0; i < num; i++)
+			uv[i] = uv[i] - arg_vdd_uv;
 #endif
 }
 }
