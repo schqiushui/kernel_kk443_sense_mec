@@ -646,21 +646,24 @@ static void krait_update_uv(int *uv, int num, int boost_uv)
 	if (enable_boost) {
 		for (i = 0; i < num; i++)
 			uv[i] += boost_uv;
-	}
 #ifdef CONFIG_MSM_VOLTAGE_FREQ_INIT
+        } else {
+		for (i = 0; i < num; i++) {
 	switch (arg_vdd_uv) {
 
 	case 1:
-		uv[1] -= 15000;
+					uv[i] -= 25000;
 		break;
 	case 2:
-		uv[1] -= 30000;
+					uv[i] -= 50000;
 		break;
 	case 3:
-		uv[1] -= 45000;
+					uv[i] -= 75000;
 		break;
 	}
+		}
 #endif
+}
 }
 
 static char table_name[] = "qcom,speedXX-pvsXX-bin-vXX";
