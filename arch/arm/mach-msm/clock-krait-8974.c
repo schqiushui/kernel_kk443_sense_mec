@@ -41,7 +41,10 @@
 unsigned long arg_cpu_oc = 0;
 static int arg_vdd_uv = 0;
 int pvs_number = 0;
-module_param(pvs_number, int, 0755); 
+
+module_param(arg_cpu_oc, long, S_IRUGO | S_IWUSR);
+module_param(arg_vdd_uv, int, S_IRUGO | S_IWUSR);
+module_param(pvs_number, int, S_IRUGO);
 
 static int __init cpufreq_read_cpu_oc(char *cpu_oc)
 {
