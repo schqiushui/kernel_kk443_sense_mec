@@ -1996,12 +1996,6 @@ config MSM_CPU_VOLTAGE_CONTROL
 	help
 	  This enables userspace CPU Voltage Control.
 
-config MSM_VOLTAGE_FREQ_INIT
-	bool "Command line CPU Voltage and Frequency Control"
-	default y
-	help
-	  This enables command line CPU Voltage and Frequency Control.
-
 config MSM_AVS_HW
 	bool "Enable Adaptive Voltage Scaling (AVS)"
 	default n

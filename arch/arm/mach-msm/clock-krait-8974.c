@@ -36,15 +36,20 @@
 #include <mach/perflock.h>
 #endif
 
-#ifdef CONFIG_MSM_VOLTAGE_FREQ_INIT
 //elementalx
 unsigned long arg_cpu_oc = 0;
 static int arg_vdd_uv = 0;
 int pvs_number = 0;
+//lyapota
+unsigned int edp_limit = 0;
+//--
 
 module_param(arg_cpu_oc, long, S_IRUGO);
 module_param(arg_vdd_uv, int, S_IRUGO);
 module_param(pvs_number, int, S_IRUGO);
+//lyapota
+module_param(edp_limit, int, S_IRUGO | S_IWUSR);
+//--
 
 static int __init cpufreq_read_cpu_oc(char *cpu_oc)
 {
@@ -81,7 +86,6 @@ static int __init cpufreq_read_vdd_uv(char *vdd_uv)
 	return 0;
 }
 __setup("vdd_uv=", cpufreq_read_vdd_uv);
-#endif
 
 DEFINE_FIXED_DIV_CLK(hfpll_src_clk, 1, NULL);
 DEFINE_FIXED_DIV_CLK(acpu_aux_clk, 2, NULL);
@@ -516,13 +520,12 @@ static void get_krait_bin_format_b(struct platform_device *pdev,
 
 	
 	if (pte_efuse & BIT(3)) {
-#ifdef CONFIG_MSM_VOLTAGE_FREQ_INIT
 		//elementalx
 		if (arg_cpu_oc == 0 && *speed == 1)
 			arg_cpu_oc = 2265600;
 		else if (arg_cpu_oc == 0 && *speed == 3)
 			arg_cpu_oc = 2457600;
-#endif					
+		
 		dev_info(&pdev->dev, "Speed bin: %d\n", *speed);
 	} else {
 		dev_warn(&pdev->dev, "Speed bin not set. Defaulting to 0!\n");
@@ -532,10 +535,9 @@ static void get_krait_bin_format_b(struct platform_device *pdev,
 	
 	pte_efuse = readl_relaxed(base + 0x4) & BIT(21);
 	if (pte_efuse) {
-#ifdef CONFIG_MSM_VOLTAGE_FREQ_INIT
 		//elementalx
 		pvs_number = *pvs;
-#endif
+
 		dev_info(&pdev->dev, "PVS bin: %d\n", *pvs);
 	} else {
 		dev_warn(&pdev->dev, "PVS bin not set. Defaulting to 0!\n");
@@ -653,12 +655,11 @@ static void krait_update_uv(int *uv, int num, int boost_uv)
 	if (enable_boost) {
 		for (i = 0; i < num; i++)
 			uv[i] += boost_uv;
-#ifdef CONFIG_MSM_VOLTAGE_FREQ_INIT
         } else {
 		for (i = 0; i < num; i++)
 			uv[i] = uv[i] + (arg_vdd_uv * 1000);
-#endif
-}
+
+	}
 }
 
 static char table_name[] = "qcom,speedXX-pvsXX-bin-vXX";
