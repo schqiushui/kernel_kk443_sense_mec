@@ -42,8 +42,8 @@ unsigned long arg_cpu_oc = 0;
 static int arg_vdd_uv = 0;
 int pvs_number = 0;
 
-module_param(arg_cpu_oc, long, S_IRUGO | S_IWUSR);
-module_param(arg_vdd_uv, int, S_IRUGO | S_IWUSR);
+module_param(arg_cpu_oc, long, S_IRUGO);
+module_param(arg_vdd_uv, int, S_IRUGO);
 module_param(pvs_number, int, S_IRUGO);
 
 static int __init cpufreq_read_cpu_oc(char *cpu_oc)
@@ -54,23 +54,30 @@ static int __init cpufreq_read_cpu_oc(char *cpu_oc)
 	err =  strict_strtoul(cpu_oc, 0, &ui_khz);
 	if (err)
 		arg_cpu_oc = 0;
-
-	arg_cpu_oc = ui_khz;
-	printk("elementalx: cpu_oc=%lu\n", arg_cpu_oc);
+	else
+		if (ui_khz >= 2265600 && ui_khz <= 2803200)
+			arg_cpu_oc = ui_khz;
+		else
+			arg_cpu_oc = 0;
+	printk("elementalx: cpu_oc=%lu kHz\n", arg_cpu_oc);
 	return 0;
 }
 __setup("cpu_oc=", cpufreq_read_cpu_oc);
 
 static int __init cpufreq_read_vdd_uv(char *vdd_uv)
 {
-	long arg, err;
+	long ui_mv, err;
 
-	err =  strict_strtol(vdd_uv, 0, &arg);
+	err =  strict_strtol(vdd_uv, 0, &ui_mv);
 	if (err)
 		arg_vdd_uv = 0;
+	else
+		if (abs(ui_mv) >= 10 && abs(ui_mv) <= 50)
+			arg_vdd_uv = ui_mv;
+		else
+			arg_vdd_uv = 0;
 
-	arg_vdd_uv = arg;
-	printk("elementalx: vdd_uv=%d\n", arg_vdd_uv);
+	printk("elementalx: vdd_uv=%d mV\n", arg_vdd_uv);
 	return 0;
 }
 __setup("vdd_uv=", cpufreq_read_vdd_uv);
@@ -649,7 +656,7 @@ static void krait_update_uv(int *uv, int num, int boost_uv)
 #ifdef CONFIG_MSM_VOLTAGE_FREQ_INIT
         } else {
 		for (i = 0; i < num; i++)
-			uv[i] = uv[i] - arg_vdd_uv;
+			uv[i] = uv[i] + (arg_vdd_uv * 1000);
 #endif
 }
 }
