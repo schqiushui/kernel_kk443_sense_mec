@@ -146,7 +146,7 @@ static int set_cpu_freq(struct cpufreq_policy *policy, unsigned int new_freq,
 		return 0;
 	
 //lyapota
-	if (edp_limit && policy->cpu >= 1 && index >= max_freq_table_index {
+	if (edp_limit && policy->cpu >= 1 && index >= max_freq_table_index) {
 		index = max_freq_table_index - 1;
 		new_freq = freq_table[index].frequency;
 	}
