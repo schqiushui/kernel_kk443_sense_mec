@@ -135,7 +135,7 @@ static int set_cpu_freq(struct cpufreq_policy *policy, unsigned int new_freq,
 	int ret = 0;
 //lyapota
 	int j = 0;
-	int cpus_online;
+	int cpus_online = 0;
 //--	
 	int saved_sched_policy = -EINVAL;
 	int saved_sched_rt_prio = -EINVAL;
@@ -146,13 +146,10 @@ static int set_cpu_freq(struct cpufreq_policy *policy, unsigned int new_freq,
 		return 0;
 	
 //lyapota
-	if (edp_limit) {
-		for_each_cpu(j, policy->cpus)
-			if (cpu_online(j))
-				cpus_online++;			
-		if (cpus_online > edp_limit && new_freq >= freq_table[max_freq_table_index].frequency)
-			new_freq = freq_table[max_freq_table_index - 1].frequency;
-	}	
+	if (edp_limit && policy->cpu >= 1 && index >= max_freq_table_index {
+		index = max_freq_table_index - 1;
+		new_freq = freq_table[index].frequency;
+	}
 //--
 
 #ifdef CONFIG_ARCH_MSM8974
