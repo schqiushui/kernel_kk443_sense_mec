@@ -58,7 +58,8 @@ static struct cpufreq_frequency_table *freq_table;
 static struct cpufreq_frequency_table *krait_freq_table;
 #endif
 //lyapota
-static unsigned int max_freq_table_index;
+static unsigned int max_freq_table_index; 
+static unsigned int freq_req_cnt;
 //--
 static unsigned int *l2_khz;
 static bool is_clk;
@@ -132,11 +133,7 @@ static DEFINE_MUTEX(set_cpufreq_lock);
 static int set_cpu_freq(struct cpufreq_policy *policy, unsigned int new_freq,
 			unsigned int index)
 {
-	int ret = 0;
-//lyapota
-	int j = 0;
-	int cpus_online = 0;
-//--	
+	int ret = 0;	
 	int saved_sched_policy = -EINVAL;
 	int saved_sched_rt_prio = -EINVAL;
 	struct cpufreq_freqs freqs;
@@ -146,9 +143,16 @@ static int set_cpu_freq(struct cpufreq_policy *policy, unsigned int new_freq,
 		return 0;
 	
 //lyapota
-	if (edp_limit && policy->cpu >= 1 && index >= max_freq_table_index) {
-		index = max_freq_table_index - 1;
-		new_freq = freq_table[index].frequency;
+	if (edp_limit) {
+		if (policy->cpu >= 1 && index >= max_freq_table_index) {
+			freq_req_cnt++;
+			if (freq_req_cnt > 10) {
+				freq_req_cnt--;
+				index = max_freq_table_index - 1;
+				new_freq = freq_table[index].frequency;
+			}
+		} else if (policy->cpu >= 1 && freq_req_cnt > 0)
+			freq_req_cnt--;
 	}
 //--
 
