@@ -134,6 +134,10 @@ static int set_cpu_freq(struct cpufreq_policy *policy, unsigned int new_freq,
 			unsigned int index)
 {
 	int ret = 0;	
+//lyapota
+	int cpu;
+	int cpu_cnt = 0;
+//
 	int saved_sched_policy = -EINVAL;
 	int saved_sched_rt_prio = -EINVAL;
 	struct cpufreq_freqs freqs;
@@ -144,14 +148,16 @@ static int set_cpu_freq(struct cpufreq_policy *policy, unsigned int new_freq,
 	
 //lyapota
 	if (edp_limit) {
-		if (policy->cpu >= 1 && index >= max_freq_table_index) {
+		for_each_online_cpu(cpu)
+			cpu_cnt++;
+		if (cpu_cnt > 1 && index >= max_freq_table_index - 1) {
 			freq_req_cnt++;
-			if (freq_req_cnt > 10) {
+			if (freq_req_cnt > edp_limit) {
 				freq_req_cnt--;
 				index = max_freq_table_index - 1;
 				new_freq = freq_table[index].frequency;
 			}
-		} else if (policy->cpu >= 1 && freq_req_cnt > 0)
+		} else if ((cpu_cnt <= 1 || index < 6) && freq_req_cnt > 0)
 			freq_req_cnt--;
 	}
 //--
