@@ -157,7 +157,7 @@ static int set_cpu_freq(struct cpufreq_policy *policy, unsigned int new_freq,
 				index = max_freq_table_index - 1;
 				new_freq = freq_table[index].frequency;
 			}
-		} else if ((cpu_cnt <= 1 || index < 6) && freq_req_cnt > 0)
+		} else if ((cpu_cnt <= 1 || index < 7) && freq_req_cnt > 0)
 			freq_req_cnt--;
 	}
 //--

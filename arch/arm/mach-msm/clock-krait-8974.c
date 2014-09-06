@@ -41,7 +41,7 @@ unsigned long arg_cpu_oc = 0;
 static int arg_vdd_uv = 0;
 int pvs_number = 0;
 //lyapota
-unsigned int edp_limit = 0;
+unsigned int edp_limit = 10;
 //--
 
 module_param(arg_cpu_oc, long, S_IRUGO);
