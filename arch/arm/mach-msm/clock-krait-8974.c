@@ -40,16 +40,16 @@
 unsigned long arg_cpu_oc = 0;
 static int arg_vdd_uv = 0;
 int pvs_number = 0;
-//lyapota
-unsigned int edp_limit = 0;
 //--
 
-module_param(arg_cpu_oc, long, S_IRUGO);
-module_param(arg_vdd_uv, int, S_IRUGO);
-module_param(pvs_number, int, S_IRUGO);
 //lyapota
+unsigned int edp_limit = 0;
+
+module_param(arg_cpu_oc, long, S_IRUGO);
+module_param_named(vdd_uv_current, arg_vdd_uv, int, S_IRUGO);
+module_param(pvs_number, int, S_IRUGO);
 module_param(edp_limit, int, S_IRUGO | S_IWUSR);
-//--
+//--lyapota
 
 static int __init cpufreq_read_cpu_oc(char *cpu_oc)
 {
@@ -77,7 +77,7 @@ static int __init cpufreq_read_vdd_uv(char *vdd_uv)
 	if (err)
 		arg_vdd_uv = 0;
 	else
-		if (abs(ui_mv) >= 10 && abs(ui_mv) <= 50)
+		if (abs(ui_mv) >= 1 && abs(ui_mv) <= 50)
 			arg_vdd_uv = ui_mv;
 		else
 			arg_vdd_uv = 0;
@@ -733,6 +733,57 @@ ssize_t store_UV_mV_table(struct cpufreq_policy *policy,
 
 	return ret;
 }
+
+//lyapota
+static int quick_vdd_uv = 0;
+
+static int quick_vdd_uv_param_set(const char *val, const struct kernel_param *kp)
+{
+	int i, j, old_value;
+	int ret = 0;
+	unsigned int uv, cpu = 0;
+	unsigned int num_levels = cpu_clk[cpu]->vdd_class->num_levels;
+
+	old_value = quick_vdd_uv;
+	ret = param_set_int(val, kp);
+	if (ret) {
+		pr_err("vdd_uv_param_set: ret = %d\n", ret);
+		return ret;
+	}
+
+	if (abs(quick_vdd_uv) < 1 && abs(quick_vdd_uv) > 50) {
+		quick_vdd_uv = old_value;
+		return -EINVAL;
+	}
+
+	for (i = 0; i < num_levels; i++) {
+		if (use_for_scaling(cpu_clk[cpu]->fmax[i] / 1000) < 0)
+			continue;
+
+		uv = cpu_clk[cpu]->vdd_class->vdd_uv[i] / 1000 + quick_vdd_uv;
+
+		if (uv > CPU_VDD_MAX)
+			uv = CPU_VDD_MAX;
+		else if (uv < CPU_VDD_MIN)
+			uv = CPU_VDD_MIN;
+
+		for (j = 0; j < NR_CPUS; j++)
+			cpu_clk[j]->vdd_class->vdd_uv[i] = uv * 1000;
+	}
+
+	arg_vdd_uv += quick_vdd_uv;
+
+	return 0;
+}
+
+static struct kernel_param_ops quick_vdd_uv_ops = {
+	.set = quick_vdd_uv_param_set,
+	.get = param_get_int,
+};
+
+module_param_cb(vdd_uv_quick, &quick_vdd_uv_ops, &quick_vdd_uv, S_IRUGO | S_IWUSR);
+//--
+
 #endif
 
 static int clock_krait_8974_driver_probe(struct platform_device *pdev)
