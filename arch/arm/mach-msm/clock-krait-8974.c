@@ -45,7 +45,7 @@ int pvs_number = 0;
 //lyapota
 unsigned int edp_limit = 0;
 
-module_param(arg_cpu_oc, long, S_IRUGO);
+module_param_named(cpu_oc_current, arg_cpu_oc, long, S_IRUGO | S_IWUSR);
 module_param_named(vdd_uv_current, arg_vdd_uv, int, S_IRUGO);
 module_param(pvs_number, int, S_IRUGO);
 module_param(edp_limit, int, S_IRUGO | S_IWUSR);
