@@ -780,7 +780,7 @@
 			qcom,cdc-micbias-ldoh-v = <0x3>;
 			qcom,cdc-micbias-cfilt1-mv = <1800>;
 			qcom,cdc-micbias-cfilt2-mv = <2700>;
-			qcom,cdc-micbias-cfilt3-mv = <1800>;
+			qcom,cdc-micbias-cfilt3-mv = <2700>;
 			qcom,cdc-micbias1-cfilt-sel = <0x0>;
 			qcom,cdc-micbias2-cfilt-sel = <0x1>;
 			qcom,cdc-micbias3-cfilt-sel = <0x2>;
@@ -1592,7 +1592,7 @@
 		reg = <0 4>;
 		compatible = "qcom,msm-cpufreq";
 		qcom,cpufreq-table =
-			<  300000  300000  572 /*  72 MHz */ >,
+			<  300000  300000  572 /*  75 MHz */ >,
 			<  422400  422400 1144 /* 150 MHz */ >,
 			<  652800  499200 1525 /* 200 MHz */ >,
 			<  729600  576000 2342 /* 307 MHz */ >,
@@ -2300,7 +2300,7 @@
 
 		qcom,vdd-apps-rstr{
 			qcom,vdd-rstr-reg = "vdd-apps";
-			qcom,levels = <1958400 1958400 2265600>;
+			qcom,levels = <1881600 1958400 2265600>;
 			qcom,freq-req;
 		};
 	};
