@@ -19,6 +19,9 @@
 #include <mach/socinfo.h>
 
 #define MEC_UL_PID	308
+#define MEC_TL_PID	309
+#define MEC_DUGL_PID	311
+#define MEC_WHL_PID	313
 #define MEC_DWGL_PID	317
 
 static struct gpiomux_setting ap2mdm_cfg = {
@@ -1157,7 +1160,7 @@ void __init msm_htc_8974_init_gpiomux(void)
 	msm_gpiomux_install(msm_sensor_configs, ARRAY_SIZE(msm_sensor_configs));
 
     	
-    	if (of_machine_pid() == MEC_DWGL_PID)
+    	if (of_machine_pid() == MEC_DWGL_PID || of_machine_pid() == MEC_TL_PID || of_machine_pid() == MEC_DUGL_PID)
         	msm_gpiomux_install(msm_sensor_configs_china_sku, ARRAY_SIZE(msm_sensor_configs_china_sku));
     	else
         	msm_gpiomux_install(msm_sensor_configs_non_china_sku, ARRAY_SIZE(msm_sensor_configs_non_china_sku));
