@@ -5,8 +5,8 @@
 #Config Section below is where you set your paths-
 
 #Kernel path
-kernelDir1="~/Android/kernel_image/htc_m8ace_kernel_sense" #( Example /home/user/path )
-kernelDir2="~/Android/kernel_image/htc_m8ace_kernel_sense" #( Example /home/user/path )
+kernelDir1="~/Android/kernel_image/htc_m8ace_kernel_sense_stock" #( Example /home/user/path )
+kernelDir2="~/Android/kernel_image/htc_m8ace_kernel_sense_stock" #( Example /home/user/path )
 kernelDir3="Path to kernel 3" #( Example /home/user/path )
 #Toolchain path
 toolchainDir="~/gcc/arm-cortex_a15-linux-gnueabihf-linaro_4.9.2-2014.10" #( Example /home/user/path )
@@ -93,7 +93,7 @@ cp arch/arm/boot/dt.img ~/Android/mkbootimg_tools/m8ace
 echo
 echo
 echo " Moving modules "
-find -iname *.ko | xargs cp -t ~/Android/kernel_image/htc_m8ace_kernel_sense/system/lib/modules
+find -iname *.ko | xargs cp -t ~/Android/kernel_image/htc_m8ace_kernel_sense_stock/system/lib/modules
 cd ~/Android/mkbootimg_tools
 
 echo
@@ -104,9 +104,9 @@ echo " Making a boot.img ya'll "
 echo
 echo
 echo " Moved boot.img "
-cp boot.img /home/schqiushui/Android/kernel_image/htc_m8ace_kernel_sense/boot
+cp boot.img /home/schqiushui/Android/kernel_image/htc_m8ace_kernel_sense_stock/boot
 
-cd ~/Android/kernel_image/htc_m8ace_kernel_sense
+cd ~/Android/kernel_image/htc_m8ace_kernel_sense_stock
 
 echo
 echo
@@ -114,7 +114,7 @@ echo " I a make a da zip now, then move that ish to copy out dir "
 zip -r $kernelName-$now.zip *
 mv $kernelName-$now.zip $exportDir
 #cd ..
-cd ~/Android/kernel_image/htc_m8ace_kernel_sense
+cd ~/Android/kernel_image/htc_m8ace_kernel_sense_stock
 #rm -r zip2
 cd $DIR
 echo
