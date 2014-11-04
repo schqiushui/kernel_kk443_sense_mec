@@ -45,6 +45,13 @@
 #include "sysmon.h"
  #include "pil-q6v5-mss-debug.h"
 
+#ifdef CONFIG_HTC_DEBUG_RIL_PCN0006_HTC_DUMP_BAM_DMUX_LOG
+extern void msm_bam_dmux_dumplog(void);
+#endif
+#ifdef CONFIG_HTC_DEBUG_RIL_PCN0005_HTC_DUMP_SMSM_LOG
+extern void msm_smsm_dumplog(void);
+#endif
+
 #define MAX_VDD_MSS_UV		1150000
 #define PROXY_TIMEOUT_MS	10000
 #define MAX_SSR_REASON_LEN	81U
@@ -112,6 +119,14 @@ static irqreturn_t modem_err_fatal_intr_handler(int irq, void *dev_id)
 	
 	if (drv->crash_shutdown)
 		return IRQ_HANDLED;
+
+#ifdef CONFIG_HTC_DEBUG_RIL_PCN0006_HTC_DUMP_BAM_DMUX_LOG
+	msm_bam_dmux_dumplog();
+#endif
+
+#ifdef CONFIG_HTC_DEBUG_RIL_PCN0005_HTC_DUMP_SMSM_LOG
+	msm_smsm_dumplog();
+#endif
 
 	pr_err("Fatal error on the modem.\n");
 	subsys_set_crash_status(drv->subsys, true);

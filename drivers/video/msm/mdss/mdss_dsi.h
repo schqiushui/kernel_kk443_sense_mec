@@ -460,6 +460,8 @@ void mdss_dsi_wait4video_done(struct mdss_dsi_ctrl_pdata *ctrl);
 void mdss_dsi_cmdlist_commit(struct mdss_dsi_ctrl_pdata *ctrl, int from_mdp);
 int mdss_dsi_cmdlist_put(struct mdss_dsi_ctrl_pdata *ctrl,
 				struct dcs_cmd_req *cmdreq);
+void mdss_dsi_read_commit(struct mdss_dsi_ctrl_pdata *ctrl,
+				struct dcs_cmd_req *cmdreq);
 struct dcs_cmd_req *mdss_dsi_cmdlist_get(struct mdss_dsi_ctrl_pdata *ctrl);
 void mdss_dsi_cmdlist_kickoff(int intf);
 

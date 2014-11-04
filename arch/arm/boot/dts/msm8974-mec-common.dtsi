@@ -95,6 +95,7 @@
 			mcu,Chip_mode-gpio    = <&msmgpio 53 0x00>;
 			mcu,ALS_goldh  = <0x16>;
 			mcu,ALS_goldl  = <0x8D>;
+			mcu,proximity_debu_info = <1>;
                 };
 
 
@@ -537,6 +538,7 @@
 
 &sdhc_2 {
 	qcom,pad-drv-on = <0x3 0x2 0x1>; /* 8mA, 6mA, 4mA */
+	qcom,pad-drv-on-uhs = <0x6 0x2 0x1>; /* 14mA, 6mA, 4mA */
 	qcom,pad-drv-on-sdr104 = <0x3 0x2 0x2>; /* 8mA, 6mA, 6mA */
 };
 

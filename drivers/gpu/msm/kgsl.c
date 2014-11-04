@@ -3694,6 +3694,22 @@ static void kgsl_core_exit(void)
 	unregister_chrdev_region(kgsl_driver.major, KGSL_DEVICE_MAX);
 }
 
+static void do_destroy_removed_pagetable(struct work_struct *work) {
+	struct kgsl_driver *driver = container_of(work,
+                        struct kgsl_driver, destroy_removed_pagetable_work);
+	struct kgsl_pagetable *pt = NULL;
+	unsigned long flags;
+
+	spin_lock_irqsave(&driver->ptlock, flags);
+	if(!list_empty(&driver->removed_pagetable_list)) {
+		pt = list_first_entry(&driver->removed_pagetable_list, struct kgsl_pagetable, list);
+		list_del(&pt->list);
+	}
+	spin_unlock_irqrestore(&driver->ptlock, flags);
+
+	_kgsl_destroy_pagetable(pt);
+}
+
 static int __init kgsl_core_init(void)
 {
 	int result = 0;
@@ -3751,6 +3767,8 @@ static int __init kgsl_core_init(void)
 	INIT_LIST_HEAD(&kgsl_driver.process_list);
 
 	INIT_LIST_HEAD(&kgsl_driver.pagetable_list);
+	INIT_LIST_HEAD(&kgsl_driver.removed_pagetable_list);
+	INIT_WORK(&kgsl_driver.destroy_removed_pagetable_work, do_destroy_removed_pagetable);
 
 	kgsl_mmu_set_mmutype(ksgl_mmu_type);
 

@@ -482,9 +482,9 @@ bool dma_release_from_contiguous(struct device *dev, struct page *pages,
 
 	sub_meminfo_total_pages(NR_DMA_PAGES, count);
 
+    free_contig_range(pfn, count);
 	mutex_lock(&cma_mutex);
 	bitmap_clear(cma->bitmap, pfn - cma->base_pfn, count);
-	free_contig_range(pfn, count);
 	mutex_unlock(&cma_mutex);
 
 	return true;

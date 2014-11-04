@@ -222,6 +222,7 @@ static int mdss_mdp_parse_dt_prop_len(struct platform_device *pdev,
 static int mdss_mdp_parse_dt_smp(struct platform_device *pdev);
 static int mdss_mdp_parse_dt_misc(struct platform_device *pdev);
 static int mdss_mdp_parse_dt_ad_cfg(struct platform_device *pdev);
+extern int mdss_mdp_parse_dt_dspp_pcc_setting(struct platform_device *pdev);
 
 u32 mdss_mdp_fb_stride(u32 fb_index, u32 xres, int bpp)
 {
@@ -1520,6 +1521,12 @@ static int mdss_mdp_parse_dt(struct platform_device *pdev)
 	if (rc) {
 		pr_err("%s: Error in panel override:rc=[%d]\n",
 		       __func__, rc);
+		return rc;
+	}
+
+	rc = mdss_mdp_parse_dt_dspp_pcc_setting(pdev);
+	if (rc) {
+		pr_err("Error in device tree : dspp_pcc settings\n");
 		return rc;
 	}
 

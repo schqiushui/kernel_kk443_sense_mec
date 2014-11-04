@@ -248,7 +248,7 @@ static struct dwc3_msm *context = NULL;
 static struct usb_ext_notification *usb_ext;
 static int htc_usb_disable;
 static int htc_vbus_backup;
-static int htc_id_backup;
+static int htc_id_backup = 1;
 
 static inline u32 dwc3_msm_read_reg(void *base, u32 offset)
 {
@@ -1928,6 +1928,7 @@ static irqreturn_t msm_dwc3_irq(int irq, void *data)
 void htc_dwc3_disable_usb(int state)
 {
 	struct dwc3_msm *mdwc = context;
+	struct dwc3_otg *dotg = container_of(mdwc->otg_xceiv->otg, struct dwc3_otg, otg);
 	printk(KERN_INFO "[USB] %s state : %d\n",__func__,state);
 
 	if (state == 1) {
@@ -1945,6 +1946,9 @@ void htc_dwc3_disable_usb(int state)
 		mdwc->charger.usb_disable = htc_usb_disable;
 		mdwc->ext_xceiv.bsv = htc_vbus_backup;
 		mdwc->ext_xceiv.id = htc_id_backup;
+		if (htc_id_backup == 0)
+			clear_bit(ID, &dotg->inputs);
+
 		queue_delayed_work(system_nrt_wq, &mdwc->resume_work, 20);
 	}
 }
@@ -2328,15 +2332,17 @@ static DEVICE_ATTR(adc_enable, S_IRUGO | S_IWUSR, adc_enable_show,
 void dwc3_otg_set_id_state(int id)
 {
 	struct dwc3_msm *dwc3_msm = context;
-
+	htc_id_backup = id;
 	if (!id) {
+		if (htc_usb_disable)
+			return;
 		printk("[USB] PMIC: ID set\n");
 		dwc3_msm->id_state = DWC3_ID_GROUND;
-		htc_id_backup = DWC3_ID_GROUND;
 	} else {
+		if (htc_usb_disable)
+			return;
 		printk("[USB] PMIC: ID clear\n");
 		dwc3_msm->id_state = DWC3_ID_FLOAT;
-		htc_id_backup = DWC3_ID_FLOAT;
 	}
 
 	wake_lock_timeout(&dwc3_msm->cable_detect_wlock, 3*HZ);

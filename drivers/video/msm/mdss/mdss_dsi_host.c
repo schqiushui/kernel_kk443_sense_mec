@@ -1659,6 +1659,29 @@ void mdss_dsi_cmdlist_rx(struct mdss_dsi_ctrl_pdata *ctrl,
 		req->cb(len);
 }
 
+void mdss_dsi_read_commit(struct mdss_dsi_ctrl_pdata *ctrl,
+				struct dcs_cmd_req *req)
+{
+	if (!(req->flags & CMD_REQ_RX))
+		return;
+
+	mutex_lock(&ctrl->cmd_mutex);
+
+	
+	mdss_dsi_cmd_mdp_busy(ctrl);
+
+	mdss_bus_bandwidth_ctrl(1);
+
+	mdss_dsi_clk_ctrl(ctrl, 1);
+
+	mdss_dsi_cmdlist_rx(ctrl, req);
+
+	mdss_dsi_clk_ctrl(ctrl, 0);
+	mdss_bus_bandwidth_ctrl(0);
+
+	mutex_unlock(&ctrl->cmd_mutex);
+}
+
 void mdss_dsi_cmdlist_commit(struct mdss_dsi_ctrl_pdata *ctrl, int from_mdp)
 {
 	struct dcs_cmd_req *req;

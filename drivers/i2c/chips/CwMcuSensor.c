@@ -158,6 +158,7 @@ struct CWMCU_data {
 	u8 ALS_goldh;
 	u8 ALS_goldl;
 	u8 ls_polling;
+	u8 proximity_debu_info;
 	int als_kvalue;
 	int ps_kvalue;
 	int ps_kheader;
@@ -1203,7 +1204,7 @@ static int active_set(struct device *dev,struct device_attribute *attr,const cha
 	u8 i;
 	int retry = 0;
 	int rc = 0;
-	u8 data8[14] = {0};
+	u8 data8[34] = {0};
 
 	for (retry = 0; retry < ACTIVE_RETRY_TIMES; retry++) {
 		if (mcu_data->resume_done != 1)
@@ -1227,9 +1228,38 @@ static int active_set(struct device *dev,struct device_attribute *attr,const cha
 		return count;
 	}
 	if ((sensors_id == Proximity) && (enabled == 0)) {
-		rc = CWMCU_i2c_read(mcu_data, CW_I2C_REG_SENSORS_CALIBRATOR_DEBUG_PROXIMITY, data8, 14);
-		I("%s: AUtoK: Threshold = %d, SADC = %d, CompensationValue = %d\n", __func__, *(u16*)&data8[10], *(u16*)&data8[8], data8[12]);
-		I("%s: AutoK: QueueIsEmpty = %d, Queue = %d %d %d %d\n", __func__, data8[13], *(u16*)&data8[0], *(u16*)&data8[2], *(u16*)&data8[4], *(u16*)&data8[6]);
+		if (mcu_data->proximity_debu_info == 1) {
+			uint8_t mcu_data_p[4];
+
+			CWMCU_i2c_read(mcu_data,
+			    CW_I2C_REG_SENSORS_CALIBRATOR_GET_DATA_PROXIMITY,
+			    mcu_data_p,
+			    sizeof(mcu_data_p));
+			CWMCU_i2c_read(mcu_data,
+				CW_I2C_REG_SENSORS_CALIBRATOR_DEBUG_PROXIMITY,
+				data8,
+				sizeof(data8));
+			I("%s: AutoK: Threshold = %d, SADC = %d, "
+			  "CompensationValue = %d\n", __func__,
+			  *(uint16_t*)&mcu_data_p[2], *(uint16_t*)&data8[8],
+			  data8[10]);
+			I("%s: AutoK: QueueIsEmpty = %d, Queue = %d %d %d %d\n",
+			  __func__, data8[11], *(uint16_t*)&data8[0],
+			  *(uint16_t*)&data8[2], *(uint16_t*)&data8[4],
+			  *(uint16_t*)&data8[6]);
+			I("%s: AutoK: Last ADC values (from old to new) = %d, "
+			  "%d, %d, %d, %d, %d, %d, %d, %d, %d\n", __func__,
+			  *(uint16_t*)&data8[12], *(uint16_t*)&data8[14],
+			  *(uint16_t*)&data8[16], *(uint16_t*)&data8[18],
+			  *(uint16_t*)&data8[20], *(uint16_t*)&data8[22],
+			  *(uint16_t*)&data8[24], *(uint16_t*)&data8[26],
+			  *(uint16_t*)&data8[28], *(uint16_t*)&data8[30]);
+		} else {
+			CWMCU_i2c_read(mcu_data, CW_I2C_REG_SENSORS_CALIBRATOR_DEBUG_PROXIMITY, data8, 14);
+			I("%s: AutoK: Threshold = %d, SADC = %d, CompensationValue = %d\n", __func__, *(u16*)&data8[10], *(u16*)&data8[8], data8[12]);
+			I("%s: AutoK: QueueIsEmpty = %d, Queue = %d %d %d %d\n", __func__, data8[13], *(u16*)&data8[0], *(u16*)&data8[2], *(u16*)&data8[4], *(u16*)&data8[6]);
+		}
+
 	}
 	if (sensors_id == Proximity) {
 		if (enabled)
@@ -2556,13 +2586,24 @@ static void cwmcu_irq_work_func(struct work_struct *work)
 	
 	if (INT_st1 & CW_MCU_INT_BIT_PROXIMITY) {
 		if(sensor->enabled_list & (1<<Proximity)){
-			ret = CWMCU_i2c_read(sensor, CWSTM32_READ_Proximity, data, 2);
+			if (sensor->proximity_debu_info == 1)
+				ret = CWMCU_i2c_read(sensor, CWSTM32_READ_Proximity, data, 6);
+			else
+				ret = CWMCU_i2c_read(sensor, CWSTM32_READ_Proximity, data, 2);
 			if(data[0] < 2){
 				sensor->sensors_time[Proximity] = sensor->sensors_time[Proximity] -sensor->report_period[Proximity];
 				p_status = data[0];
 				input_report_abs(sensor->input, ABS_DISTANCE, data[0]);
 				input_sync(sensor->input);
-				D("Proximity interrupt occur value is %d adc is %x ps_calibration is %d\n",data[0],data[1],sensor->ps_calibrated);
+				if (sensor->proximity_debu_info == 1) {
+					I("Proximity interrupt occur value is %d adc is"
+					  " %d thre is %d comp is %d ps_calibration is "
+					  "%d\n", data[0], *(uint16_t *)&data[1],
+					  *(uint16_t *)&data[3], data[5],
+					  sensor->ps_calibrated);
+				} else {
+					D("Proximity interrupt occur value is %d adc is %x ps_calibration is %d\n",data[0],data[1],sensor->ps_calibrated);
+				}
 			} else {
 				D("Proximity interrupt occur value is %d adc is %x ps_calibration is %d (message only)\n",
 				  data[0],data[1],sensor->ps_calibrated);
@@ -3124,6 +3165,18 @@ static int mcu_parse_dt(struct device *dev, struct CWMCU_data *pdata)
                 pdata->ls_polling = 0;
                 I("%s: ls_polling not found", __func__);
         }
+
+	prop = of_find_property(dt, "mcu,proximity_debu_info", NULL);
+	if (prop) {
+		buf = 0;
+		of_property_read_u32(dt, "mcu,proximity_debu_info", &buf);
+		pdata->proximity_debu_info = buf;
+		I("%s: proximity_debu_info = 0x%x", __func__,
+		  pdata->proximity_debu_info);
+	} else {
+		pdata->proximity_debu_info = 0;
+		I("%s: proximity_debu_info not found", __func__);
+	}
 
         return 0;
 }

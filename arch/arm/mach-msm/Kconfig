@@ -3187,12 +3187,6 @@ config MACH_MEC_DWG
         help
           Support for HTC MSM8974 MEC_DWG
 
-config MACH_MEC_UL
-        depends on ARCH_MSM8974
-        bool "MSM8974 MEC_UL"
-        help
-          Support for HTC MSM8974 MEC_UL
-
 config MACH_MEC_DUG
         depends on ARCH_MSM8974
         bool "MSM8974 MEC_DUG"

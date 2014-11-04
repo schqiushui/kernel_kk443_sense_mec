@@ -154,6 +154,16 @@ Optional properties:
                             was reserved and can be used for remapping by fb
                             device memory.
 
+- htc,mdss-pp-pcc-settings<1..n>:	A node that lists the elements of the pcc-settings. There
+					can be more than one instance of this binding,
+					in which case the entry would be appended with
+					the supply entry index.
+					e.g. htc,pp-pcc-settings1
+					-- htc,pcc-mode: Name of the pcc mode (normal/negative)
+					-- htc,pcc-enable: Int for enable pcc function
+					-- htc,pcc-configs: Array with key-value pairs of constant MDP
+					register settings.
+
 Optional subnodes:
 Child nodes representing the frame buffer virtual devices.
 

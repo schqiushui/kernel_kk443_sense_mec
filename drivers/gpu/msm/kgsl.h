@@ -113,6 +113,11 @@ struct kgsl_driver {
 	
 	struct list_head pagetable_list;
 	
+	struct list_head removed_pagetable_list;
+	
+	struct work_struct destroy_removed_pagetable_work;
+
+	
 	spinlock_t ptlock;
 	
 	struct mutex process_mutex;

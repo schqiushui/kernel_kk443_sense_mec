@@ -542,7 +542,11 @@ int tps61310_flashlight_control(int mode)
 {
 	int ret = 0;
 	int err = 0;
+	int rc = 0;
 
+	rc = cancel_delayed_work_sync(&tps61310_delayed_work);
+	if (rc)
+		FLT_INFO_LOG("tps61310_delayed_work is cancelled\n");
 	mutex_lock(&tps61310_mutex);
 	if (this_tps61310->reset && reg_init_fail) {
 		reg_init_fail = 0;

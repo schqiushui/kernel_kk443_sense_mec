@@ -225,6 +225,7 @@ struct sdhci_msm_pad_drv {
 
 struct sdhci_msm_pad_drv_data {
 	struct sdhci_msm_pad_drv *on;
+	struct sdhci_msm_pad_drv *on_uhs;
 	struct sdhci_msm_pad_drv *on_sdr104;
 	struct sdhci_msm_pad_drv *off;
 	u8 size;
@@ -968,17 +969,32 @@ static int sdhci_msm_setup_pad(struct sdhci_msm_pltfm_data *pdata, bool enable)
 	return 0;
 }
 
-static int sdhci_msm_setup_hifreq_pad(struct sdhci_msm_pltfm_data *pdata)
+static int sdhci_msm_setup_hifreq_pad(struct sdhci_msm_pltfm_data *pdata,
+				struct sdhci_host *host)
 {
 	struct sdhci_msm_pad_data *curr;
+	struct mmc_ios curr_ios = host->mmc->ios;
 	int i;
 
 	curr = pdata->pin_data->pad_data;
-	for (i = 0; i < curr->drv->size; i++) {
+	if (curr_ios.timing == MMC_TIMING_UHS_SDR104) {
+		for (i = 0; i < curr->drv->size; i++) {
 			if (!curr->drv->on_sdr104[i].no || !curr->drv->on_sdr104[i].val)
 				break;
 			msm_tlmm_set_hdrive(curr->drv->on_sdr104[i].no,
 				curr->drv->on_sdr104[i].val);
+		}
+	}
+	else if (curr_ios.timing == MMC_TIMING_UHS_SDR12 ||
+		curr_ios.timing == MMC_TIMING_UHS_SDR25 ||
+		curr_ios.timing == MMC_TIMING_UHS_SDR50 ||
+		curr_ios.timing == MMC_TIMING_UHS_DDR50) {
+		for (i = 0; i < curr->drv->size; i++) {
+			if (!curr->drv->on_uhs[i].no || !curr->drv->on_uhs[i].val)
+				break;
+			msm_tlmm_set_hdrive(curr->drv->on_uhs[i].no,
+				curr->drv->on_uhs[i].val);
+		}
 	}
 	return 0;
 }
@@ -999,14 +1015,15 @@ static int sdhci_msm_setup_pins(struct sdhci_msm_pltfm_data *pdata, bool enable)
 	return ret;
 }
 
-static int sdhci_msm_setup_hifreq_pins(struct sdhci_msm_pltfm_data *pdata)
+static int sdhci_msm_setup_hifreq_pins(struct sdhci_msm_pltfm_data *pdata,
+				struct sdhci_host *host)
 {
 	int ret = 0;
 
 	if (!pdata->pin_data)
 		return 0;
 	if (!pdata->pin_data->is_gpio)
-		ret = sdhci_msm_setup_hifreq_pad(pdata);
+		ret = sdhci_msm_setup_hifreq_pad(pdata, host);
 
 	return ret;
 }
@@ -1236,8 +1253,9 @@ static int sdhci_msm_dt_get_pad_drv_info(struct device *dev, int id,
 		goto out;
 	}
 	drv_data->on = drv;
-	drv_data->on_sdr104 = drv + drv_data->size;
-	drv_data->off = drv + drv_data->size * 2;
+	drv_data->on_uhs = drv + drv_data->size;
+	drv_data->on_sdr104 = drv + drv_data->size * 2;
+	drv_data->off = drv + drv_data->size * 3;
 
 	ret = sdhci_msm_dt_get_array(dev, "qcom,pad-drv-on",
 			&tmp, &len, drv_data->size);
@@ -1249,6 +1267,20 @@ static int sdhci_msm_dt_get_pad_drv_info(struct device *dev, int id,
 		drv_data->on[i].val = tmp[i];
 		dev_dbg(dev, "%s: val[%d]=0x%x\n", __func__,
 				i, drv_data->on[i].val);
+	}
+
+	ret = sdhci_msm_dt_get_array(dev, "qcom,pad-drv-on-uhs",
+			&tmp, &len, drv_data->size);
+	if (!ret) {
+		for (i = 0; i < len; i++) {
+			drv_data->on_uhs[i].no = base + i;
+			drv_data->on_uhs[i].val = tmp[i];
+			dev_dbg(dev, "%s: val[%d]=0x%x\n", __func__,
+					i, drv_data->on_uhs[i].val);
+		}
+	} else {
+		memset(drv_data->on_uhs, 0, drv_data->size * sizeof(struct sdhci_msm_pad_drv));
+		dev_dbg(dev, "%s: can`t find UHS-I setting\n", __func__);
 	}
 
 	ret = sdhci_msm_dt_get_array(dev, "qcom,pad-drv-on-sdr104",
@@ -2408,8 +2440,9 @@ static void sdhci_msm_set_clock(struct sdhci_host *host, unsigned int clock)
 
 	if (sup_clock != msm_host->clk_rate) {
 		if (is_sd_platform(msm_host->pdata) &&
-			curr_ios.timing == MMC_TIMING_UHS_SDR104)
-			sdhci_msm_setup_hifreq_pins(msm_host->pdata);
+			curr_ios.signal_voltage == MMC_SIGNAL_VOLTAGE_180)
+			sdhci_msm_setup_hifreq_pins(msm_host->pdata, host);
+
 		pr_debug("%s: %s: setting clk rate to %u\n",
 				mmc_hostname(host->mmc), __func__, sup_clock);
 		rc = clk_set_rate(msm_host->clk, sup_clock);

@@ -497,6 +497,13 @@ config TOUCHSCREEN_HIMAX
 		help
 		This enables support for HIMAX HM852xD over I2C based touchscreens.
 
+config TOUCHSCREEN_ONE_LAYER_HIMAX
+        tristate "HIMAX 1 layer  HM852xD serious i2c touchscreen"
+		depends on I2C
+		help
+		This enables support for 1 layer HIMAX HM852xD too for just A11 project.
+		default n
+
 
 config TOUCHSCREEN_HIMAX_ESD_EN
         tristate "HIMAX HM852xD ESD recovery function"

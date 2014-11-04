@@ -128,6 +128,28 @@ endif
 	dtb-$(CONFIG_ARCH_MSM8226)	+= apq8026-v2-1080p-cdp.dtb
 	dtb-$(CONFIG_ARCH_MSM8226)	+= apq8026-v2-720p-mtp.dtb
 	dtb-$(CONFIG_ARCH_MSM8226)	+= apq8026-v2-1080p-mtp.dtb
+ifeq ($(CONFIG_MACH_A11_UL), y)
+    htc_dtb-$(CONFIG_ARCH_MSM8226)	+= msm8926-a11ul.dtb
+else
+ifeq ($(CONFIG_MACH_A3_UL), y)
+    htc_dtb-$(CONFIG_ARCH_MSM8226)	+= msm8926-a3ul.dtb
+    htc_dtb-$(CONFIG_ARCH_MSM8226)	+= msm8926-a3ul-xb.dtb
+endif
+ifeq ($(CONFIG_MACH_A3_CL), y)
+    htc_dtb-$(CONFIG_ARCH_MSM8226)	+= msm8926-a3cl.dtb
+endif
+ifeq ($(CONFIG_MACH_A3_TL), y)
+    htc_dtb-$(CONFIG_ARCH_MSM8226)	+= msm8926-a3tl.dtb
+endif
+    htc_dtb-$(CONFIG_ARCH_MSM8226)	+= msm8926-j1.dtb
+    htc_dtb-$(CONFIG_ARCH_MSM8226)	+= msm8926-memul.dtb
+    htc_dtb-$(CONFIG_ARCH_MSM8226)	+= msm8926-memwl.dtb
+    htc_dtb-$(CONFIG_ARCH_MSM8226)	+= msm8926-a5ul.dtb
+    htc_dtb-$(CONFIG_ARCH_MSM8226)	+= msm8226-a5dwg.dtb
+    htc_dtb-$(CONFIG_ARCH_MSM8226)	+= msm8926-a5tl.dtb
+    htc_dtb-$(CONFIG_ARCH_MSM8226)	+= msm8926-a5dwgl.dtb
+    htc_dtb-$(CONFIG_ARCH_MSM8226)      += msm8926-a5dugl.dtb
+endif
 
 # FSM9XXX
    zreladdr-$(CONFIG_ARCH_FSM9XXX)	:= 0x10008000

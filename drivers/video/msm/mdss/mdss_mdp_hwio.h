@@ -410,6 +410,8 @@ enum mdss_mdp_dspp_index {
 #define MDSS_MDP_REG_DSPP_GAMUT_BASE			0x2DC
 #define MDSS_MDP_REG_DSPP_GC_BASE			0x2B0
 
+#define MDSS_MDP_DSPP_OP_PCC_EN				BIT(4)
+
 enum mdss_mpd_intf_index {
 	MDSS_MDP_NO_INTF,
 	MDSS_MDP_INTF0,

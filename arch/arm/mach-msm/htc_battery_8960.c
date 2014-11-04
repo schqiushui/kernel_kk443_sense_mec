@@ -1676,6 +1676,7 @@ inline static int is_voltage_critical_low(int voltage_mv)
 }
 
 #define CHG_ONE_PERCENT_LIMIT_PERIOD_MS	(1000 * 60)
+#define LEVEL_GAP_BETWEEN_UI_AND_RAW	3
 static void batt_check_overload(unsigned long time_since_last_update_ms)
 {
 	static unsigned int overload_count;
@@ -1699,6 +1700,11 @@ static void batt_check_overload(unsigned long time_since_last_update_ms)
 			if (overload_count++ < 3) {
 				htc_batt_info.rep.overload = 0;
 			} else
+				htc_batt_info.rep.overload = 1;
+
+			
+			if (htc_batt_info.rep.level - htc_batt_info.rep.level_raw
+					>= LEVEL_GAP_BETWEEN_UI_AND_RAW)
 				htc_batt_info.rep.overload = 1;
 
 			time_accumulation = 0;

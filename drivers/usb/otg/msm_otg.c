@@ -4076,11 +4076,127 @@ static ssize_t dpdm_pulldown_enable_store(struct device *dev,
 static DEVICE_ATTR(dpdm_pulldown_enable, S_IRUGO | S_IWUSR,
 		dpdm_pulldown_enable_show, dpdm_pulldown_enable_store);
 
+#ifdef CONFIG_MACH_DUMMY
+static int usb_phy_setting_A3CL[9] = {
+	0x44,0x80,
+	0x6c,0x81,
+	0x34,0x82,
+	0x03,0x83,
+	0xffffffff
+};
+#elif defined(CONFIG_MACH_DUMMY)
+static int usb_phy_setting_A3ULQHD[9] = {
+	0x44,0x80,
+	0x6c,0x81,
+	0x34,0x82,
+	0x03,0x83,
+	0xffffffff
+};
+#elif defined(CONFIG_MACH_DUMMY)
+static int usb_phy_setting_A3TL[9] = {
+	0x44,0x80,
+	0x6c,0x81,
+	0x34,0x82,
+	0x03,0x83,
+	0xffffffff
+};
+#if 0
+static int usb_phy_setting_A3UL[9] = {	
+	0x44,0x80,
+	0x5e,0x81,
+	0x30,0x82,
+	0x13,0x83,
+	0xffffffff
+};
+static char *MID_LIST[] = {
+	"0P9O1",
+	"0P9O2",
+	"0P9O3",
+};
+#endif
+#elif defined(CONFIG_MACH_DUMMY)
+static int usb_phy_setting_MEMUL[9] = {
+	0x44,0x80,
+	0x4f,0x81,
+	0x3c,0x82,
+	0x13,0x83,
+	0xffffffff
+};
+static int usb_phy_setting_MEMUL_PVT[9] = {
+	0x44,0x80,
+	0x3b,0x81,
+	0x3c,0x82,
+	0x13,0x83,
+	0xffffffff
+};
+#elif defined(CONFIG_MACH_DUMMY)
+static int usb_phy_setting_MEMWL[9] = {
+	0x44,0x80,
+	0x4f,0x81,
+	0x3c,0x82,
+	0x13,0x83,
+	0xffffffff
+};
+static int usb_phy_setting_MEMWL_PVT[9] = {
+	0x44,0x80,
+	0x3b,0x81,
+	0x3c,0x82,
+	0x13,0x83,
+	0xffffffff
+};
+#elif defined(CONFIG_MACH_DUMMY)
+static int usb_phy_setting_A5DWG[9] = {
+	0x44,0x80,
+	0x39,0x81,
+	0x31,0x82,
+	0x13,0x83,
+	0xffffffff
+};
+#elif defined(CONFIG_MACH_DUMMY)
+static int usb_phy_setting_A5UL[9] = {
+	0x44,0x80,
+	0x3c,0x81,
+	0x3d,0x82,
+	0x13,0x83,
+	0xffffffff
+};
+#elif defined(CONFIG_MACH_DUMMY)
+static int usb_phy_setting_A5TL[9] = {
+	0x44,0x80,
+	0x3c,0x81,
+	0x3d,0x82,
+	0x13,0x83,
+	0xffffffff
+};
+#endif
 
 int *htc_msm_otg_get_phy_init(int *phy_init)
 {
 	__maybe_unused char *mid;
 	__maybe_unused int i;
+#ifdef CONFIG_MACH_DUMMY
+	return usb_phy_setting_A3CL;
+#elif defined(CONFIG_MACH_DUMMY)
+	return usb_phy_setting_A3ULQHD;
+#elif defined(CONFIG_MACH_DUMMY)
+	return usb_phy_setting_A3TL;
+#elif defined(CONFIG_MACH_DUMMY)
+	if (of_machine_pcbid() == 0x80)
+		return usb_phy_setting_MEMWL_PVT;
+	else
+		return usb_phy_setting_MEMWL;
+#elif defined(CONFIG_MACH_DUMMY)
+	if (of_machine_pcbid() == 0x80)
+		return usb_phy_setting_MEMUL_PVT;
+	else
+		return usb_phy_setting_MEMUL;
+#elif defined(CONFIG_MACH_DUMMY)
+	return usb_phy_setting_A5DWG;
+#elif defined(CONFIG_MACH_DUMMY)
+	return usb_phy_setting_A5UL;
+#elif defined(CONFIG_MACH_DUMMY)
+	return usb_phy_setting_A5TL;
+#endif
 	printk("[USB] use dt phy init\n");
 	return phy_init;
 }

@@ -1521,7 +1521,7 @@ void __init msm_8974_init_gpiomux(void)
 
 	msm_gpiomux_install(msm_cir_configs, ARRAY_SIZE(msm_cir_configs));
 
-	if (of_machine_pid() == 268)
+	if (of_machine_pid() == 268 || of_board_is_m8wlj())
 		msm_gpiomux_install(msm_felica_configs, ARRAY_SIZE(msm_felica_configs));
 
 	if (socinfo_get_platform_subtype() == PLATFORM_SUBTYPE_MDM)

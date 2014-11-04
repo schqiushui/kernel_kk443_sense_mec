@@ -461,7 +461,6 @@ obj-$(CONFIG_MACH_M8) += board-m8-gpiomux.o board-m8-audio.o
 
 obj-$(CONFIG_MACH_MEC_UL) += board-mec-gpiomux.o board-m8-audio.o
 obj-$(CONFIG_MACH_MEC_DWG) += board-mec-gpiomux.o board-m8-audio.o
-obj-$(CONFIG_MACH_MEC_UL) += board-mec-gpiomux.o board-m8-audio.o
 obj-$(CONFIG_MACH_MEC_DUG) += board-mec-gpiomux.o board-m8-audio.o
 obj-$(CONFIG_MACH_MEC_TL) += board-mec-gpiomux.o board-m8-audio.o
 obj-$(CONFIG_MACH_MEC_WHL) += board-mec-gpiomux.o board-m8-audio.o

@@ -125,6 +125,13 @@ config s5k6a1gx
 	---help---
 		Support for s5k5e sensor driver.
 		
+config A116A1
+	bool "Sensor s5k6a1gx (BAYER 1.3)"
+	depends on MSMB_CAMERA
+	default n
+	---help---
+		Support for s5k5e sensor driver for A11.
+
 config IMX135
 	bool "Sensor IMX135 (BAYER 12M)"
 	depends on MSMB_CAMERA

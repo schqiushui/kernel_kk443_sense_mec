@@ -490,7 +490,7 @@ int mdss_mdp_read_panel_status(struct mdss_mdp_ctl *ctl,char cmd0)
 	cmdreq.rlen = 4;
 	cmdreq.rbuf = rbuf;
 
-	mdss_dsi_cmdlist_put(ctrl_pdata, &cmdreq);
+	mdss_dsi_read_commit(ctrl_pdata, &cmdreq);
 
 	pr_err("%s: Read %x = %x\n", __func__, dcs_cmd[0], rbuf[0]);
 	return 0;
@@ -523,6 +523,7 @@ static int mdss_mdp_cmd_wait4pingpong(struct mdss_mdp_ctl *ctl, void *arg)
 				&ctx->pp_comp, KOFF_TIMEOUT);
 
 		if (rc <= 0) {
+			ctx->logging = 60;
 			mdss_mdp_read_panel_status(ctl, 0x0A); 
 			mdss_mdp_read_panel_status(ctl, 0x0E); 
 			WARN(1, "cmd kickoff timed out (%d) ctl=%d\n",
