@@ -3313,7 +3313,6 @@ aicl_check_worker(struct work_struct *work)
 				pr_err("AICL dec: error reading USBIN channel=%d, rc=%d\n",
 							USBIN, rc);
 			usbin = (int)result.physical;
-<<<<<<< HEAD
 
 			
 			if (chip->is_aicl_adapter_wa_enabled
@@ -3334,18 +3333,13 @@ aicl_check_worker(struct work_struct *work)
 				}
 			}
 
-			pr_info("AICL: is_vin_min_detected=%d, total_time_ms=%ld, usb_ma=%d, "
+			pr_debug("AICL: is_vin_min_detected=%d, total_time_ms=%ld, usb_ma=%d, "
 					"usbin=%d, vchg_uv=%d, pre_vchg_uv=%d, vchg_diff_uv=%d, "
 					"adapter_wa_cnt=%d\n",
 					is_vin_min_detected, aicl_timer.total_time_ms, usb_ma, usbin,
 					vchg_uv, aicl_pre_vchg_uv, vchg_diff_uv, aicl_adapter_wa_cnt);
 
 			aicl_pre_vchg_uv = vchg_uv;
-=======
-			pr_debug("AICL: is_vin_min_detected=%d, total_time_ms=%ld, usb_ma=%d, "
-					"usbin=%d, vchg=%d\n",
-					is_vin_min_detected, aicl_timer.total_time_ms, usb_ma, usbin, vchg);
->>>>>>> 3fe1dda... clean up a ton of logspam
 
 			if (htc_battery_is_support_qc20() &&
 					usbin > QC20_9_VOLT_CHECK &&
@@ -3447,14 +3441,9 @@ aicl_check_worker(struct work_struct *work)
 			}
 			
 			__pm8941_charger_vbus_draw(usb_ma);
-<<<<<<< HEAD
-			pr_info("AICL dec: usb_now=%d, usb_target=%d, usbin=%d, vchg_uv=%d, "
+			pr_debug("AICL dec: usb_now=%d, usb_target=%d, usbin=%d, vchg_uv=%d, "
 					"vchg_diff_uv=%d\n",
 				usb_ma, usb_target_ma, usbin, vchg_uv, vchg_diff_uv);
-=======
-			pr_debug("AICL dec: usb_now=%d, usb_target=%d, usbin=%d, vchg=%d\n",
-				usb_ma, usb_target_ma, usbin, vchg);
->>>>>>> 3fe1dda... clean up a ton of logspam
 			usb_target_ma = usb_ma;
 			
 			aicl_1100mA_vchg_diff_uv = 0;
