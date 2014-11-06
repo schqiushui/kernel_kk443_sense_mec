@@ -12,7 +12,7 @@ make clean
 echo
 echo
 echo " Run defconfig "
-make ARCH=arm mecdwg_defconfig
+make ARCH=arm schkernel_mec_defconfig
 #Change arm-eabi- to what you current toolchain uses default is gcc4.6 & gcc4.7 toolchains
 echo
 echo
