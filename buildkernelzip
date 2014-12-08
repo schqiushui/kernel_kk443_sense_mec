@@ -9,12 +9,12 @@ kernelDir1="~/Android/kernel_image/SchKernel-m8ace-Extra" #( Example /home/user/
 kernelDir2="~/Android/kernel_image/htc_m8ace_kernel_sense_stock" #( Example /home/user/path )
 kernelDir3="Path to kernel 3" #( Example /home/user/path )
 #Toolchain path
-toolchainDir="~/gcc/arm-cortex_a15-linux-gnueabihf-linaro_4.9.2-2014.10" #( Example /home/user/path )
+toolchainDir="~/gcc/arm-cortex_a15-linux-gnueabihf-linaro_4.9.3-2014.11" #( Example /home/user/path )
 #Path where you would like the kernel to be outputed
 exportDir="/home/schqiushui/Android/kernel_image/m8ace_out/stock" #( Example /home/user/Desktop )
 #Change default to what ever you like
 
-kernel1name="SchKernel-m8ace-Extra-1.51"
+kernel1name="SchKernel-m8ace-Extra-1.61"
 kernel2name="SchKernel-ElementalX-m8ace-1.08"
 kernel3name="Default-3"
 #Do not edit
