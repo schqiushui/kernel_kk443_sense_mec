@@ -780,7 +780,7 @@
 			qcom,cdc-micbias-ldoh-v = <0x3>;
 			qcom,cdc-micbias-cfilt1-mv = <1800>;
 			qcom,cdc-micbias-cfilt2-mv = <2700>;
-			qcom,cdc-micbias-cfilt3-mv = <2700>;
+			qcom,cdc-micbias-cfilt3-mv = <1800>;
 			qcom,cdc-micbias1-cfilt-sel = <0x0>;
 			qcom,cdc-micbias2-cfilt-sel = <0x1>;
 			qcom,cdc-micbias3-cfilt-sel = <0x2>;
@@ -882,7 +882,7 @@
                 interrupts = <0 97 0>;
                 interrupt-names = "qup_err_intr";
                 qcom,i2c-bus-freq = <384000>;
-                qcom,i2c-src-freq = <19200000>;
+                qcom,i2c-src-freq = <50000000>;
                 qcom,scl-gpio = <&msmgpio 11 0>;
                 qcom,sda-gpio = <&msmgpio 10 0>;
 		qcom,master-id = <86>;
@@ -898,7 +898,7 @@
                 interrupts = <0 98 0>;
                 interrupt-names = "qup_err_intr";
                 qcom,i2c-bus-freq = <384000>;
-                qcom,i2c-src-freq = <19200000>;
+                qcom,i2c-src-freq = <50000000>;
 		qcom,scl-gpio = <&msmgpio 22 0>;
 		qcom,sda-gpio = <&msmgpio 21 0>;
 		qcom,master-id = <86>;
@@ -914,7 +914,7 @@
                 interrupts = <0 100 0>;
                 interrupt-names = "qup_err_intr";
                 qcom,i2c-bus-freq = <384000>;
-                qcom,i2c-src-freq = <19200000>;
+                qcom,i2c-src-freq = <50000000>;
                 qcom,scl-gpio = <&msmgpio 30 0>;
                 qcom,sda-gpio = <&msmgpio 29 0>;
 		qcom,master-id = <86>;
@@ -1605,9 +1605,7 @@
 			< 1574400 1574400 6103 /* 800 MHz */ >,
 			< 1728000 1651200 6103 /* 800 MHz */ >,
 			< 1958400 1728000 7102 /* 931 MHz */ >,
-			< 2112000 1728000 7102 /* 931 MHz */ >,
 			< 2265600 1728000 7102 /* 931 MHz */ >,
-			< 2342400 1728000 7102 /* 931 MHz */ >,
 			< 2457600 1728000 7102 /* 931 MHz */ >,
 			< 2572800 1728000 7102 /* 931 MHz */ >,
 			< 2649600 1728000 7102 /* 931 MHz */ >,
@@ -2300,7 +2298,7 @@
 
 		qcom,vdd-apps-rstr{
 			qcom,vdd-rstr-reg = "vdd-apps";
-			qcom,levels = <1881600 1958400 2265600>;
+			qcom,levels = <1958400 1958400 2265600>;
 			qcom,freq-req;
 		};
 	};
